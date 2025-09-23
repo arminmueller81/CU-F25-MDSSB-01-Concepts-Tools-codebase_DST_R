@@ -61,7 +61,7 @@ flights <- flights
 # IN THIS COURSE, YOU WILL NOT NEED THEM, BUT THEY MAY BE USEFUL IN OTHER SETTINGS.
 
 # ALSO: BEWARE NOT TO SAVE DATAFILES IN YOUR GIT REPOSITORIES, THOSE ARE FOR CODEFILES AND REPORTS!
-
+  
 # usually we work with a working directory
 getwd() # check your working directory
 # For this course, it is typically the project folder with the Git repository
@@ -758,7 +758,7 @@ flights %>%
   ggplot(mapping = aes(x = dep_delay, y = dep_delay2)) +
     geom_point() + 
     labs(y = "departure delay in minutes (calculated)",
-         x = "departure delay in HHMM format",
+         x = "departure delay in minutes (original dataset)",
          title = "Departure delay consistency check")
 
 # This looks weird:
@@ -798,18 +798,34 @@ flights %>%
   # Sixth: create a scatter plot
   ggplot(mapping = aes(x = dep_delay, y = dep_delay2)) +
   geom_point() + 
-  labs(x = "departure delay in HHMM format",
+  labs(x = "departure delay in minutes( Original dataset)",
        y = "departure delay in minutes (calculated)",
        title = "Departure delay consistency check")
 
 
-
-
 ## Homework assignment
 # Make a similar plot for arrival delay
-
-
-
+## Arrival delay
+flights %>% 
+  # First: select the variables
+  select(year:day,  
+         ends_with("delay"),
+         ends_with("time"),
+         time_hour) %>% 
+  # Second: create new variable
+  mutate(arr_delay2 = arr_time - sched_arr_time) %>% 
+  # Third: exclude NAs
+  filter(!is.na(arr_delay) & !is.na(arr_delay2)) %>% 
+  # Fourth: exclude delays stretching over midnight
+  filter(arr_time > sched_arr_time) %>%  # crude option, same logic as dep
+  # Fifth: draw a random sample
+  sample_n(10000) %>% 
+  # Sixth: create a scatter plot
+  ggplot(mapping = aes(x = arr_delay, y = arr_delay2)) +
+  geom_point(alpha = 0.5) + 
+  labs(x = "arrival delay in minutes (Original dataset)",
+       y = "arrival delay in minutes (calculated)",
+       title = "Arrival delay consistency check")
 
 
 # 3.5 Grouping and summaries with summarize() and group_by()
