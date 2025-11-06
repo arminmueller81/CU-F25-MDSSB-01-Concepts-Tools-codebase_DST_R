@@ -1,0 +1,2289 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>nyc-flights</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="NYC flights_files/libs/clipboard/clipboard.min.js"></script>
+<script src="NYC flights_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="NYC flights_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="NYC flights_files/libs/quarto-html/popper.min.js"></script>
+<script src="NYC flights_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="NYC flights_files/libs/quarto-html/anchor.min.js"></script>
+<link href="NYC flights_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="NYC flights_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="NYC flights_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="NYC flights_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="NYC flights_files/libs/bootstrap/bootstrap-bb462d781dde1847d9e3ccf7736099dd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+
+<p>https://www.kaggle.com/datasets/lampubhutia/nyc-flight-delay</p>
+<div id="63dbb074" class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># importing main libraries</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>import pandas as pd:</strong> This line imports the pandas library, which is a powerful library for data manipulation and analysis. It is commonly aliased as pd for convenience in coding.</p>
+<p><strong>import numpy as np:</strong> This line imports the numpy library, which provides support for numerical operations and arrays. It is often aliased as np.</p>
+<p><strong>import matplotlib.pyplot as plt:</strong> This line imports the pyplot module from the matplotlib library, which is used for creating static, animated, and interactive visualizations in Python. It is aliased as plt for convenience.</p>
+<p><strong>import seaborn as sns:</strong> This line imports the seaborn library, which is built on top of matplotlib and provides a high-level interface for creating informative and attractive statistical graphics. Seaborn is often aliased as sns.</p>
+<div id="2f2139e1" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># reading our dataframe</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">"C:</span><span class="ch">\\</span><span class="st">Users</span><span class="ch">\\</span><span class="st">aiman</span><span class="ch">\\</span><span class="st">Downloads</span><span class="ch">\\</span><span class="st">NYC-flights</span><span class="ch">\\</span><span class="st">flight_data.csv"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">year</th>
+<th data-quarto-table-cell-role="th">month</th>
+<th data-quarto-table-cell-role="th">day</th>
+<th data-quarto-table-cell-role="th">dep_time</th>
+<th data-quarto-table-cell-role="th">sched_dep_time</th>
+<th data-quarto-table-cell-role="th">dep_delay</th>
+<th data-quarto-table-cell-role="th">arr_time</th>
+<th data-quarto-table-cell-role="th">sched_arr_time</th>
+<th data-quarto-table-cell-role="th">arr_delay</th>
+<th data-quarto-table-cell-role="th">carrier</th>
+<th data-quarto-table-cell-role="th">flight</th>
+<th data-quarto-table-cell-role="th">tailnum</th>
+<th data-quarto-table-cell-role="th">origin</th>
+<th data-quarto-table-cell-role="th">dest</th>
+<th data-quarto-table-cell-role="th">air_time</th>
+<th data-quarto-table-cell-role="th">distance</th>
+<th data-quarto-table-cell-role="th">hour</th>
+<th data-quarto-table-cell-role="th">minute</th>
+<th data-quarto-table-cell-role="th">time_hour</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>517.0</td>
+<td>515</td>
+<td>2.0</td>
+<td>830.0</td>
+<td>819</td>
+<td>11.0</td>
+<td>UA</td>
+<td>1545</td>
+<td>N14228</td>
+<td>EWR</td>
+<td>IAH</td>
+<td>227.0</td>
+<td>1400</td>
+<td>5</td>
+<td>15</td>
+<td>1/1/2013 5:00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>533.0</td>
+<td>529</td>
+<td>4.0</td>
+<td>850.0</td>
+<td>830</td>
+<td>20.0</td>
+<td>UA</td>
+<td>1714</td>
+<td>N24211</td>
+<td>LGA</td>
+<td>IAH</td>
+<td>227.0</td>
+<td>1416</td>
+<td>5</td>
+<td>29</td>
+<td>1/1/2013 5:00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>542.0</td>
+<td>540</td>
+<td>2.0</td>
+<td>923.0</td>
+<td>850</td>
+<td>33.0</td>
+<td>AA</td>
+<td>1141</td>
+<td>N619AA</td>
+<td>JFK</td>
+<td>MIA</td>
+<td>160.0</td>
+<td>1089</td>
+<td>5</td>
+<td>40</td>
+<td>1/1/2013 5:00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>544.0</td>
+<td>545</td>
+<td>-1.0</td>
+<td>1004.0</td>
+<td>1022</td>
+<td>-18.0</td>
+<td>B6</td>
+<td>725</td>
+<td>N804JB</td>
+<td>JFK</td>
+<td>BQN</td>
+<td>183.0</td>
+<td>1576</td>
+<td>5</td>
+<td>45</td>
+<td>1/1/2013 5:00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>554.0</td>
+<td>600</td>
+<td>-6.0</td>
+<td>812.0</td>
+<td>837</td>
+<td>-25.0</td>
+<td>DL</td>
+<td>461</td>
+<td>N668DN</td>
+<td>LGA</td>
+<td>ATL</td>
+<td>116.0</td>
+<td>762</td>
+<td>6</td>
+<td>0</td>
+<td>1/1/2013 6:00</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="7c24c599" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>(336776, 19)</code></pre>
+</div>
+</div>
+<div id="3411bfcb" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#I would now want to check a basic summary of my dataset.</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#The info function displays some important information about dataset like non-nulls counts, dtype, column name and memory usage.</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>df.info()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 336776 entries, 0 to 336775
+Data columns (total 19 columns):
+ #   Column          Non-Null Count   Dtype  
+---  ------          --------------   -----  
+ 0   year            336776 non-null  int64  
+ 1   month           336776 non-null  int64  
+ 2   day             336776 non-null  int64  
+ 3   dep_time        328521 non-null  float64
+ 4   sched_dep_time  336776 non-null  int64  
+ 5   dep_delay       328521 non-null  float64
+ 6   arr_time        328063 non-null  float64
+ 7   sched_arr_time  336776 non-null  int64  
+ 8   arr_delay       327346 non-null  float64
+ 9   carrier         336776 non-null  object 
+ 10  flight          336776 non-null  int64  
+ 11  tailnum         334264 non-null  object 
+ 12  origin          336776 non-null  object 
+ 13  dest            336776 non-null  object 
+ 14  air_time        327346 non-null  float64
+ 15  distance        336776 non-null  int64  
+ 16  hour            336776 non-null  int64  
+ 17  minute          336776 non-null  int64  
+ 18  time_hour       336776 non-null  object 
+dtypes: float64(5), int64(9), object(5)
+memory usage: 48.8+ MB</code></pre>
+</div>
+</div>
+<p>Flights dataset is having 336776 rows and 19 columns which is big enough for an excel file to handle/process sometimes now from above view we can see we have 19 columns in the dataset which i will define as below (based on my general understanding of this dataset on first look)</p>
+<p>Dataset Details</p>
+<ol type="1">
+<li>year - Year of Flight<br>
+</li>
+<li>month - Month of Flight<br>
+</li>
+<li>day - Day (number of Flight)<br>
+</li>
+<li>dep_time - Departure Time<br>
+</li>
+<li>sched_dep_time - Scheduled Departure Time<br>
+</li>
+<li>dep_delay - Departure Delay (in Minutes)<br>
+</li>
+<li>arr_time - Arrival Time<br>
+</li>
+<li>sched_arr_time - Scheduled Arrival Time<br>
+</li>
+<li>arr_delay - Arrival Delay (in Minutes)</li>
+<li>carrier- Carrier Details of Flight<br>
+</li>
+<li>flight - Flight Name<br>
+</li>
+<li>tailnum - Tailnumber of Flight<br>
+</li>
+<li>origin - Origin of Flight<br>
+</li>
+<li>dest - Destination Airport Name<br>
+</li>
+<li>air_time - Air Time (Time in Air - travel Time ( in minutes) )<br>
+</li>
+<li>distance - Distance (assuming in miles?)<br>
+</li>
+<li>hour - Hour<br>
+</li>
+<li>minute - minute<br>
+</li>
+<li>time_hour - time hour</li>
+</ol>
+<p>Here are the airline codes and their corresponding names:</p>
+<p>‘F9’: Frontier Airlines<br>
+‘FL’: AirTran Airways (Note: AirTran Airways was acquired by Southwest Airlines and no longer operates under this code)<br>
+‘EV’: ExpressJet Airlines<br>
+‘YV’: Mesa Airlines (doing business as United Express and American Eagle)<br>
+‘OO’: SkyWest Airlines (doing business as United Express, Delta Connection, American Eagle, and Alaska SkyWest)<br>
+‘MQ’: Envoy Air (formerly American Eagle Airlines)<br>
+‘WN’: Southwest Airlines<br>
+‘B6’: JetBlue Airways<br>
+‘9E’: Endeavor Air (formerly Pinnacle Airlines, doing business as Delta Connection)<br>
+‘UA’: United Airlines<br>
+‘US’: US Airways (Note: US Airways merged with American Airlines and no longer operates under this code)<br>
+‘VX’: Virgin America (Note: Virgin America was acquired by Alaska Airlines and no longer operates under this code)<br>
+‘DL’: Delta Air Lines<br>
+‘AA’: American Airlines<br>
+‘HA’: Hawaiian Airlines<br>
+‘AS’: Alaska Airlines</p>
+<div id="c9d4f7cb" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#I would now like to see a descriptive analysis of my dataset. For this I use a describe function.</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>df.describe()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">year</th>
+<th data-quarto-table-cell-role="th">month</th>
+<th data-quarto-table-cell-role="th">day</th>
+<th data-quarto-table-cell-role="th">dep_time</th>
+<th data-quarto-table-cell-role="th">sched_dep_time</th>
+<th data-quarto-table-cell-role="th">dep_delay</th>
+<th data-quarto-table-cell-role="th">arr_time</th>
+<th data-quarto-table-cell-role="th">sched_arr_time</th>
+<th data-quarto-table-cell-role="th">arr_delay</th>
+<th data-quarto-table-cell-role="th">flight</th>
+<th data-quarto-table-cell-role="th">air_time</th>
+<th data-quarto-table-cell-role="th">distance</th>
+<th data-quarto-table-cell-role="th">hour</th>
+<th data-quarto-table-cell-role="th">minute</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">count</td>
+<td>336776.0</td>
+<td>336776.000000</td>
+<td>336776.000000</td>
+<td>328521.000000</td>
+<td>336776.000000</td>
+<td>328521.000000</td>
+<td>328063.000000</td>
+<td>336776.000000</td>
+<td>327346.000000</td>
+<td>336776.000000</td>
+<td>327346.000000</td>
+<td>336776.000000</td>
+<td>336776.000000</td>
+<td>336776.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">mean</td>
+<td>2013.0</td>
+<td>6.548510</td>
+<td>15.710787</td>
+<td>1349.109947</td>
+<td>1344.254840</td>
+<td>12.639070</td>
+<td>1502.054999</td>
+<td>1536.380220</td>
+<td>6.895377</td>
+<td>1971.923620</td>
+<td>150.686460</td>
+<td>1039.912604</td>
+<td>13.180247</td>
+<td>26.230100</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">std</td>
+<td>0.0</td>
+<td>3.414457</td>
+<td>8.768607</td>
+<td>488.281791</td>
+<td>467.335756</td>
+<td>40.210061</td>
+<td>533.264132</td>
+<td>497.457142</td>
+<td>44.633292</td>
+<td>1632.471938</td>
+<td>93.688305</td>
+<td>733.233033</td>
+<td>4.661316</td>
+<td>19.300846</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">min</td>
+<td>2013.0</td>
+<td>1.000000</td>
+<td>1.000000</td>
+<td>1.000000</td>
+<td>106.000000</td>
+<td>-43.000000</td>
+<td>1.000000</td>
+<td>1.000000</td>
+<td>-86.000000</td>
+<td>1.000000</td>
+<td>20.000000</td>
+<td>17.000000</td>
+<td>1.000000</td>
+<td>0.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">25%</td>
+<td>2013.0</td>
+<td>4.000000</td>
+<td>8.000000</td>
+<td>907.000000</td>
+<td>906.000000</td>
+<td>-5.000000</td>
+<td>1104.000000</td>
+<td>1124.000000</td>
+<td>-17.000000</td>
+<td>553.000000</td>
+<td>82.000000</td>
+<td>502.000000</td>
+<td>9.000000</td>
+<td>8.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">50%</td>
+<td>2013.0</td>
+<td>7.000000</td>
+<td>16.000000</td>
+<td>1401.000000</td>
+<td>1359.000000</td>
+<td>-2.000000</td>
+<td>1535.000000</td>
+<td>1556.000000</td>
+<td>-5.000000</td>
+<td>1496.000000</td>
+<td>129.000000</td>
+<td>872.000000</td>
+<td>13.000000</td>
+<td>29.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">75%</td>
+<td>2013.0</td>
+<td>10.000000</td>
+<td>23.000000</td>
+<td>1744.000000</td>
+<td>1729.000000</td>
+<td>11.000000</td>
+<td>1940.000000</td>
+<td>1945.000000</td>
+<td>14.000000</td>
+<td>3465.000000</td>
+<td>192.000000</td>
+<td>1389.000000</td>
+<td>17.000000</td>
+<td>44.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">max</td>
+<td>2013.0</td>
+<td>12.000000</td>
+<td>31.000000</td>
+<td>2400.000000</td>
+<td>2359.000000</td>
+<td>1301.000000</td>
+<td>2400.000000</td>
+<td>2359.000000</td>
+<td>1272.000000</td>
+<td>8500.000000</td>
+<td>695.000000</td>
+<td>4983.000000</td>
+<td>23.000000</td>
+<td>59.000000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>count: The number of non-null (non-missing) values in the column.</p>
+<p>mean: The mean (average) value of the column.</p>
+<p>std: The standard deviation, which measures the spread or dispersion of the values.</p>
+<p>min: The minimum value in the column.</p>
+<p>25%: The 25th percentile value, which represents the value below which 25% of the data falls.</p>
+<p>50%: The median or 50th percentile value, which represents the middle value of the data.</p>
+<p>75%: The 75th percentile value, which represents the value below which 75% of the data falls.</p>
+<p>max: The maximum value in the column</p>
+<p>The describe functions helps us to know various important information about our dataset. As we can observe below, this function has provided us the count, mean, standard deviation, minimum and maximum values, upper, middle and lower quartiles for each attributes. We shall notice that these calculations has only been performed on the numerical columns of the dataset.</p>
+<p>Well before proceeding ahead i would like to check the null values in the dataset which cause the incorrect analysis we have multiple options to treat the null values</p>
+<ol type="1">
+<li>Remove them (Simplest option)<br>
+</li>
+<li>Impute null/missing values with aveage or previous values (https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.fillna.html)</li>
+</ol>
+<p>Let’s go with the simple and best option considering we dont have much business/domain knowledge readily available with us, so lets check NULL values first and then kick them off of the dataset</p>
+<div id="cca8aaea" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">##How many years data we have , seems like only for 2013</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'year'</span>].unique()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<pre><code>array([2013], dtype=int64)</code></pre>
+</div>
+</div>
+<div id="e5babc87" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#12 months data </span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'month'</span>].unique()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>array([ 1, 10, 11, 12,  2,  3,  4,  5,  6,  7,  8,  9], dtype=int64)</code></pre>
+</div>
+</div>
+<div id="f132e0e2" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#To find if missing values are present in my dataset I use isnull function. </span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>df.isnull()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">year</th>
+<th data-quarto-table-cell-role="th">month</th>
+<th data-quarto-table-cell-role="th">day</th>
+<th data-quarto-table-cell-role="th">dep_time</th>
+<th data-quarto-table-cell-role="th">sched_dep_time</th>
+<th data-quarto-table-cell-role="th">dep_delay</th>
+<th data-quarto-table-cell-role="th">arr_time</th>
+<th data-quarto-table-cell-role="th">sched_arr_time</th>
+<th data-quarto-table-cell-role="th">arr_delay</th>
+<th data-quarto-table-cell-role="th">carrier</th>
+<th data-quarto-table-cell-role="th">flight</th>
+<th data-quarto-table-cell-role="th">tailnum</th>
+<th data-quarto-table-cell-role="th">origin</th>
+<th data-quarto-table-cell-role="th">dest</th>
+<th data-quarto-table-cell-role="th">air_time</th>
+<th data-quarto-table-cell-role="th">distance</th>
+<th data-quarto-table-cell-role="th">hour</th>
+<th data-quarto-table-cell-role="th">minute</th>
+<th data-quarto-table-cell-role="th">time_hour</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">336771</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>True</td>
+<td>True</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">336772</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>True</td>
+<td>True</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">336773</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>True</td>
+<td>True</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">336774</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>True</td>
+<td>True</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">336775</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>True</td>
+<td>True</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+</tbody>
+</table>
+
+<p>336776 rows × 19 columns</p>
+</div>
+</div>
+</div>
+<div id="ed9d40a5" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Simple function to check Null values in each column in the dataset</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> check_NullValues():</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    out<span class="op">=</span>df.isnull().<span class="bu">sum</span>()</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    found<span class="op">=</span><span class="dv">0</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> counter <span class="kw">in</span> out.index:</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> out[counter]<span class="op">&gt;</span><span class="dv">0</span>:</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>            found<span class="op">=</span>found<span class="op">+</span><span class="dv">1</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>( <span class="st">"column"</span>, counter , <span class="st">" is having "</span>,out[counter] , <span class="st">"Null values"</span>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(found<span class="op">==</span><span class="dv">0</span>):</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"No Null values found in dataframe"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="56cafc8c" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Show Null value columns alongwith quantity of Null values </span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>check_NullValues()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>column dep_time  is having  8255 Null values
+column dep_delay  is having  8255 Null values
+column arr_time  is having  8713 Null values
+column arr_delay  is having  9430 Null values
+column tailnum  is having  2512 Null values
+column air_time  is having  9430 Null values</code></pre>
+</div>
+</div>
+<div id="5d8deff0" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Drop Null Values</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>df.dropna(axis<span class="op">=</span><span class="dv">0</span>,how <span class="op">=</span><span class="st">'any'</span>, inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co">#Drop the columns that i dont need for my analysis to reduce the processing time/power</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>df.drop(axis<span class="op">=</span><span class="dv">1</span>,columns<span class="op">=</span>[<span class="st">'dep_time'</span>,<span class="st">'sched_dep_time'</span>,<span class="st">'sched_arr_time'</span>,<span class="st">'arr_time'</span>,<span class="st">'time_hour'</span>],inplace<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>df.dropna(axis=0, how=‘any’, inplace=True): This line is dropping rows (axis=0) that contain any missing values (NaN) in any of their columns. The how=‘any’ argument means that if any NaN value is found in a row, that entire row will be dropped. The inplace=True argument means that this operation will modify the DataFrame df in place, and it won’t return a new DataFrame. This operation effectively removes rows with missing data.</p>
+<p>df.drop(axis=1, columns=[‘dep_time’, ‘sched_dep_time’, ‘sched_arr_time’, ‘arr_time’, ‘time_hour’], inplace=True): This line is dropping specific columns from the DataFrame. The axis=1 argument indicates that you’re dropping columns (as opposed to rows). The columns argument specifies a list of column names that you want to remove from the DataFrame. In this case, it’s removing the columns ‘dep_time’, ‘sched_dep_time’, ‘sched_arr_time’, ‘arr_time’, and ‘time_hour’. Like before, the inplace=True argument modifies the DataFrame in place.</p>
+<div id="05f32530" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">year</th>
+<th data-quarto-table-cell-role="th">month</th>
+<th data-quarto-table-cell-role="th">day</th>
+<th data-quarto-table-cell-role="th">dep_delay</th>
+<th data-quarto-table-cell-role="th">arr_delay</th>
+<th data-quarto-table-cell-role="th">carrier</th>
+<th data-quarto-table-cell-role="th">flight</th>
+<th data-quarto-table-cell-role="th">tailnum</th>
+<th data-quarto-table-cell-role="th">origin</th>
+<th data-quarto-table-cell-role="th">dest</th>
+<th data-quarto-table-cell-role="th">air_time</th>
+<th data-quarto-table-cell-role="th">distance</th>
+<th data-quarto-table-cell-role="th">hour</th>
+<th data-quarto-table-cell-role="th">minute</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>2.0</td>
+<td>11.0</td>
+<td>UA</td>
+<td>1545</td>
+<td>N14228</td>
+<td>EWR</td>
+<td>IAH</td>
+<td>227.0</td>
+<td>1400</td>
+<td>5</td>
+<td>15</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>4.0</td>
+<td>20.0</td>
+<td>UA</td>
+<td>1714</td>
+<td>N24211</td>
+<td>LGA</td>
+<td>IAH</td>
+<td>227.0</td>
+<td>1416</td>
+<td>5</td>
+<td>29</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>2.0</td>
+<td>33.0</td>
+<td>AA</td>
+<td>1141</td>
+<td>N619AA</td>
+<td>JFK</td>
+<td>MIA</td>
+<td>160.0</td>
+<td>1089</td>
+<td>5</td>
+<td>40</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>-1.0</td>
+<td>-18.0</td>
+<td>B6</td>
+<td>725</td>
+<td>N804JB</td>
+<td>JFK</td>
+<td>BQN</td>
+<td>183.0</td>
+<td>1576</td>
+<td>5</td>
+<td>45</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>-6.0</td>
+<td>-25.0</td>
+<td>DL</td>
+<td>461</td>
+<td>N668DN</td>
+<td>LGA</td>
+<td>ATL</td>
+<td>116.0</td>
+<td>762</td>
+<td>6</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="1f08d135" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Let's call null value check function again to check if we still have any null values. i know it shouldnt be but playing by calling function again to test it </span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>check_NullValues()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>No Null values found in dataframe</code></pre>
+</div>
+</div>
+<div id="90fe4b3b" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">#call shape to identify the rows and columns of the dataset</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Flights dataset is having '</span>,df.shape[<span class="dv">0</span>] , <span class="st">'rows now and '</span>,df.shape[<span class="dv">1</span>],<span class="st">' columns as we have dropped 5 columns also '</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'this dataset is simple dataset which doesnt need much of cleaning/prep unlike real world dataset where we need to spend so much of time in data preparations'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Flights dataset is having  327346 rows now and  14  columns as we have dropped 5 columns also 
+this dataset is simple dataset which doesnt need much of cleaning/prep unlike real world dataset where we need to spend so much of time in data preparations</code></pre>
+</div>
+</div>
+<div id="c260b10f" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>df.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<pre><code>(327346, 14)</code></pre>
+</div>
+</div>
+<div id="3b692333" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>correlation_matrix <span class="op">=</span> df.corr()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="0fb25f48" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">8</span>))  <span class="co"># Adjust the figure size as needed</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>sns.heatmap(correlation_matrix, annot<span class="op">=</span><span class="va">True</span>, cmap<span class="op">=</span><span class="st">"coolwarm"</span>, linewidths<span class="op">=</span><span class="fl">.5</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Correlation Heatmap"</span>)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="NYC%20flights_files/figure-html/cell-18-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>the heatmap using Seaborn’s heatmap() function. You can customize the appearance of the heatmap as needed</p>
+<p>corr() is a pandas DataFrame method that calculates the pairwise Pearson correlation coefficients between the numeric columns in the DataFrame.</p>
+<p>correlation_matrix: The correlation matrix you calculated</p>
+<p>annot=True: This adds the correlation values to the cells of the heatmap.</p>
+<p>cmap=“coolwarm”: The colormap to use for the heatmap. You can choose different colormaps depending on your preferences.</p>
+<p>linewidths=.5: Specifies the width of the lines between cells in the heatmap.</p>
+<p>It will generate a heatmap that visually represents the correlations between the numeric columns in your DataFrame, making it easier to identify relationships between variables. Adjust the figure size and other parameters to suit your preferences and visualization needs.</p>
+<section id="number-of-flights-from-different-airports" class="level4">
+<h4 class="anchored" data-anchor-id="number-of-flights-from-different-airports">Number of Flights from different Airports</h4>
+<div id="5e018996" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Graphical representation of carriers scheduled flights in numbers and %</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>f,ax<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">20</span>,<span class="dv">10</span>))</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'carrier'</span>].value_counts().plot.pie(autopct<span class="op">=</span><span class="st">'</span><span class="sc">%1.2f%%</span><span class="st">'</span>,ax<span class="op">=</span>ax[<span class="dv">1</span>],shadow<span class="op">=</span><span class="va">False</span>)                                                  </span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_title(<span class="st">'Flight </span><span class="sc">% o</span><span class="st">f Carrier'</span>)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_ylabel(<span class="st">''</span>)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>sns.countplot(<span class="st">'carrier'</span>,order <span class="op">=</span> df[<span class="st">'carrier'</span>].value_counts().index, data<span class="op">=</span>df,ax<span class="op">=</span>ax[<span class="dv">0</span>])</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">'Frequency Distribution of Carriers'</span>)</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_ylabel(<span class="st">'Number of Flights'</span>)</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>C:\Users\aiman\anaconda3\lib\site-packages\seaborn\_decorators.py:36: FutureWarning: Pass the following variable as a keyword arg: x. From version 0.12, the only valid positional argument will be `data`, and passing other arguments without an explicit keyword will result in an error or misinterpretation.
+  warnings.warn(</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="NYC%20flights_files/figure-html/cell-19-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="flight-count-and-percentage-based-on-origin" class="level2">
+<h2 class="anchored" data-anchor-id="flight-count-and-percentage-based-on-origin">flight count and percentage based on origin</h2>
+<p>The primary airports in NYC are John F. Kennedy International Airport (JFK), LaGuardia Airport (LGA), and Newark Liberty International Airport (EWR).</p>
+<div id="df1f7916" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>origin_count <span class="op">=</span> df[<span class="st">'origin'</span>].value_counts()</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>f,ax<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">20</span>,<span class="dv">10</span>))</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'origin'</span>].value_counts().plot.pie(autopct<span class="op">=</span><span class="st">'</span><span class="sc">%1.2f%%</span><span class="st">'</span>,ax<span class="op">=</span>ax[<span class="dv">1</span>],shadow<span class="op">=</span><span class="va">False</span>)                                                  </span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_title(<span class="st">'Percentage of Flt from Origin'</span>)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_ylabel(<span class="st">''</span>)</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>sns.countplot(<span class="st">'origin'</span>,order <span class="op">=</span> df[<span class="st">'origin'</span>].value_counts().index, data<span class="op">=</span>df,ax<span class="op">=</span>ax[<span class="dv">0</span>])</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">'Frequency Distribution of Flt from Origin'</span>)</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_ylabel(<span class="st">'Flight Count'</span>)</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>C:\Users\aiman\anaconda3\lib\site-packages\seaborn\_decorators.py:36: FutureWarning: Pass the following variable as a keyword arg: x. From version 0.12, the only valid positional argument will be `data`, and passing other arguments without an explicit keyword will result in an error or misinterpretation.
+  warnings.warn(</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="NYC%20flights_files/figure-html/cell-20-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>a side-by-side comparison of flight counts and percentages based on their origin. The left subplot shows the number of flights from each origin, and the right subplot displays the percentage distribution of flights based on their origin in a pie chart format. This visualization can provide insights into where most flights originate.</p>
+<p><strong>Lets calculate the number of scheduled arrivals at unique destinations and stores the top 15 destinations with the highest number of scheduled arrivals in the “Destination” variable.</strong></p>
+<div id="db55befe" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of scheduled arrival at unique destination</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>Destination<span class="op">=</span> df[<span class="st">'dest'</span>].value_counts().sort_values(ascending<span class="op">=</span><span class="va">False</span>).head(<span class="dv">15</span>)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>Destination</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="19">
+<pre><code>ATL    16837
+ORD    16566
+LAX    16026
+BOS    15022
+MCO    13967
+CLT    13674
+SFO    13173
+FLL    11897
+MIA    11593
+DCA     9111
+DTW     9031
+DFW     8388
+RDU     7770
+TPA     7390
+DEN     7169
+Name: dest, dtype: int64</code></pre>
+</div>
+</div>
+<p><strong>df[‘dest’].value_counts():</strong> This line counts the number of occurrences of each unique destination in the ‘dest’ column of your DataFrame df. This results in a Series with destinations as the index and their respective counts as values.</p>
+<p><strong>.sort_values(ascending=False):</strong> This sorts the Series in descending order based on the counts, so the destinations with the highest number of scheduled arrivals come first.</p>
+<p><strong>.head(15):</strong> This selects the top 15 destinations with the highest counts.</p>
+<p>ATL - Hartsfield-Jackson Atlanta International Airport (Atlanta, Georgia, USA)<br>
+ORD - O’Hare International Airport (Chicago, Illinois, USA)<br>
+LAX - Los Angeles International Airport (Los Angeles, California, USA)<br>
+BOS - Logan International Airport (Boston, Massachusetts, USA)<br>
+MCO - Orlando International Airport (Orlando, Florida, USA)<br>
+CLT - Charlotte Douglas International Airport (Charlotte, North Carolina, USA)<br>
+SFO - San Francisco International Airport (San Francisco, California, USA)<br>
+FLL - Fort Lauderdale-Hollywood International Airport (Fort Lauderdale, Florida, USA)<br>
+MIA - Miami International Airport (Miami, Florida, USA)<br>
+DCA - Ronald Reagan Washington National Airport (Washington, D.C., USA)<br>
+DTW - Detroit Metropolitan Wayne County Airport (Detroit, Michigan, USA)<br>
+DFW - Dallas/Fort Worth International Airport (Dallas/Fort Worth, Texas, USA)<br>
+RDU - Raleigh-Durham International Airport (Raleigh-Durham, North Carolina, USA)<br>
+TPA - Tampa International Airport (Tampa, Florida, USA)<br>
+DEN - Denver International Airport (Denver, Colorado, USA)</p>
+<div id="bfc2a874" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Top10 destination flight from NYC in bar graph</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>f,ax<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">20</span>,<span class="dv">10</span>))</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'dest'</span>].value_counts().head(<span class="dv">10</span>).sort_values(ascending<span class="op">=</span><span class="va">False</span>).plot.pie(autopct<span class="op">=</span><span class="st">'</span><span class="sc">%1.2f%%</span><span class="st">'</span>,ax<span class="op">=</span>ax[<span class="dv">1</span>],shadow<span class="op">=</span><span class="va">False</span>)                                                </span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_title(<span class="st">'Percentage of Flt from dest'</span>)</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_ylabel(<span class="st">''</span>)</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>sns.countplot(<span class="st">'dest'</span>,order <span class="op">=</span> df[<span class="st">'dest'</span>].sort_values(ascending<span class="op">=</span><span class="va">False</span>).value_counts().head(<span class="dv">10</span>).index, data<span class="op">=</span>df,ax<span class="op">=</span>ax[<span class="dv">0</span>])</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">'Frequency Distribution of Flt from dest'</span>)</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_ylabel(<span class="st">'Count by Flight_Destination '</span>)</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>C:\Users\aiman\anaconda3\lib\site-packages\seaborn\_decorators.py:36: FutureWarning: Pass the following variable as a keyword arg: x. From version 0.12, the only valid positional argument will be `data`, and passing other arguments without an explicit keyword will result in an error or misinterpretation.
+  warnings.warn(</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="NYC%20flights_files/figure-html/cell-22-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="lets-understand-bit-about-delays-and-arrivals" class="level4">
+<h4 class="anchored" data-anchor-id="lets-understand-bit-about-delays-and-arrivals">lets understand bit about delays and arrivals</h4>
+</section>
+<section id="a-line-plot-to-visualize-the-changes-in-the-mean-departure-delay-over-the-months." class="level3">
+<h3 class="anchored" data-anchor-id="a-line-plot-to-visualize-the-changes-in-the-mean-departure-delay-over-the-months.">A line plot to visualize the changes in the mean departure delay over the months.</h3>
+<p>Are there any seasonal patterns in departure delays for flights from NYC?</p>
+<div id="ee7b8212" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>delay_mon_grp <span class="op">=</span> df.groupby([<span class="st">'month'</span>],as_index <span class="op">=</span> <span class="va">False</span>).agg({<span class="st">'dep_delay'</span>:<span class="st">'mean'</span>})</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>delay_mon_grp[<span class="st">'dep_delay'</span>].plot()</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Month'</span>)</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Mean departure delay'</span>)</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="NYC%20flights_files/figure-html/cell-23-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The departure delays shoot up during summer season (May,June) and go up again during the holiday season (Nov,Dec). The delays are compartively very during the months of August to October.</p>
+</section>
+<section id="on-average-how-do-departure-delays-vary-over-the-course-of-a-day" class="level3">
+<h3 class="anchored" data-anchor-id="on-average-how-do-departure-delays-vary-over-the-course-of-a-day">On average, how do departure delays vary over the course of a day?</h3>
+<div id="1857d0b1" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>df.loc[df.hour <span class="op">==</span> <span class="dv">24</span> ,<span class="st">'hour'</span>] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>delay_grp <span class="op">=</span> df.groupby([<span class="st">'hour'</span>],as_index <span class="op">=</span> <span class="va">False</span>).agg({<span class="st">'dep_delay'</span>:<span class="st">'mean'</span>})</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>delay_grp[<span class="st">'dep_delay'</span>].plot()</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Hour'</span>)</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Mean departure delay'</span>)</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="co">#df['dep_delay'].hist(by=df['hour'])</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="NYC%20flights_files/figure-html/cell-24-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The resulting plot should show how the mean departure delay varies throughout the day, allowing you to see if there are any patterns or trends in departure delays by the hour.</p>
+<p>On an average, the departure delays are at a peak during about 15:00 hrs</p>
+<section id="which-flight-departing-nyc-in-2013-flew-the-fastest" class="level4">
+<h4 class="anchored" data-anchor-id="which-flight-departing-nyc-in-2013-flew-the-fastest">Which flight departing NYC in 2013 flew the fastest?</h4>
+<div id="28d4924c" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fastest flight = Flight details with the max speed</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Speed = distance/time = distance in miles/airtime in hr = distance in miles/(airtime in min/60)</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'speed'</span>] <span class="op">=</span> df.distance<span class="op">/</span>(df.air_time<span class="op">/</span><span class="dv">60</span>)</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>max_speed <span class="op">=</span> <span class="bu">max</span>(df[<span class="st">'speed'</span>])</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>df[df[<span class="st">'speed'</span>]<span class="op">==</span> max_speed]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="23">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">year</th>
+<th data-quarto-table-cell-role="th">month</th>
+<th data-quarto-table-cell-role="th">day</th>
+<th data-quarto-table-cell-role="th">dep_delay</th>
+<th data-quarto-table-cell-role="th">arr_delay</th>
+<th data-quarto-table-cell-role="th">carrier</th>
+<th data-quarto-table-cell-role="th">flight</th>
+<th data-quarto-table-cell-role="th">tailnum</th>
+<th data-quarto-table-cell-role="th">origin</th>
+<th data-quarto-table-cell-role="th">dest</th>
+<th data-quarto-table-cell-role="th">air_time</th>
+<th data-quarto-table-cell-role="th">distance</th>
+<th data-quarto-table-cell-role="th">hour</th>
+<th data-quarto-table-cell-role="th">minute</th>
+<th data-quarto-table-cell-role="th">speed</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">216447</td>
+<td>2013</td>
+<td>5</td>
+<td>25</td>
+<td>9.0</td>
+<td>-14.0</td>
+<td>DL</td>
+<td>1499</td>
+<td>N666DN</td>
+<td>LGA</td>
+<td>ATL</td>
+<td>65.0</td>
+<td>762</td>
+<td>17</td>
+<td>0</td>
+<td>703.384615</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p><strong>df[‘speed’] = df.distance / (df.air_time / 60):</strong> This line calculates the speed for each flight in your DataFrame. It divides the distance in miles by the airtime in minutes (converted to hours by dividing by 60) to get the speed in miles per hour (mph). The result is stored in a new column named ‘speed’ in your DataFrame.</p>
+<p><strong>max_speed = max(df[‘speed’]):</strong> This line calculates the maximum speed among all flights by finding the maximum value in the ‘speed’ column.</p>
+<p><strong>df[df[‘speed’] == max_speed]:</strong> This line filters the DataFrame to select the rows where the ‘speed’ is equal to the maximum speed, effectively finding the flight(s) with the highest speed in Miles per hour.</p>
+<p>The result will be the flight details (all columns) for the flight(s) with the maximum speed.</p>
+<section id="calculates-the-mean-arrival-delay-for-each-month-and-creates-a-line-plot-to-visualize-how-the-mean-arrival-delay-changes-over-the-months." class="level5">
+<h5 class="anchored" data-anchor-id="calculates-the-mean-arrival-delay-for-each-month-and-creates-a-line-plot-to-visualize-how-the-mean-arrival-delay-changes-over-the-months.">calculates the mean arrival delay for each month and creates a line plot to visualize how the mean arrival delay changes over the months.</h5>
+<div id="9621488c" class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>delay_mon_grp <span class="op">=</span> df.groupby([<span class="st">'month'</span>],as_index <span class="op">=</span> <span class="va">False</span>).agg({<span class="st">'arr_delay'</span>:<span class="st">'mean'</span>})</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>delay_mon_grp[<span class="st">'arr_delay'</span>].plot()</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Month'</span>)</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Mean arrival delay'</span>)</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="NYC%20flights_files/figure-html/cell-26-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="calculates-the-mean-arrival-delay-for-each-hour-of-the-day-and-creates-a-line-plot-to-visualize-how-the-mean-arrival-delay-changes-over-the-hours." class="level4">
+<h4 class="anchored" data-anchor-id="calculates-the-mean-arrival-delay-for-each-hour-of-the-day-and-creates-a-line-plot-to-visualize-how-the-mean-arrival-delay-changes-over-the-hours.">calculates the mean arrival delay for each hour of the day and creates a line plot to visualize how the mean arrival delay changes over the hours.</h4>
+<div id="a426ca58" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>df.loc[df.hour <span class="op">==</span> <span class="dv">24</span> ,<span class="st">'hour'</span>] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>delay_grp <span class="op">=</span> df.groupby([<span class="st">'hour'</span>],as_index <span class="op">=</span> <span class="va">False</span>).agg({<span class="st">'arr_delay'</span>:<span class="st">'mean'</span>})</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>delay_grp[<span class="st">'arr_delay'</span>].plot()</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Hour'</span>)</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Mean arrival delay'</span>)</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a><span class="co">#df['arr_delay'].hist(by=df['hour'])</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="NYC%20flights_files/figure-html/cell-27-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="606300c1" class="cell" data-execution_count="55">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co">#scatterplot - flight air_time vs flight distance</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df, x<span class="op">=</span><span class="st">"distance"</span>, y<span class="op">=</span><span class="st">"air_time"</span>)</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Flight Distance vs. Flight air_time"</span>)</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"distance"</span>)</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"air_time"</span>)</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="NYC%20flights_files/figure-html/cell-28-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The line graph shows a positive correlation between flight distance and flight air time. This means that as the distance of a flight increases, the air time of the flight also increases. This is because airplanes need to travel at a certain speed in order to maintain lift, and this speed is typically higher for longer flights.</p>
+<p>The graph also shows that there is a lot of variation in the air time of flights for a given distance. This is because there are a number of factors that can affect flight time, such as wind conditions, aircraft type, and fuel load.</p>
+<p>The following are some additional observations about the graph:</p>
+<p>The graph appears to be slightly non-linear, with the air time increasing at a slightly faster rate than the distance for longer flights. This could be due to a number of factors, such as the need for airplanes to climb to a higher altitude for longer flights. There are a few data points that fall above the main trend line. These data points represent flights that took longer than expected, perhaps due to factors such as bad weather or mechanical problems. There are also a few data points that fall below the main trend line. These data points represent flights that took shorter than expected, perhaps due to factors such as favorable wind conditions. Overall, the graph provides a good overview of the relationship between flight distance and flight air time. It is important to note that there is a lot of variation in flight time for a given distance, due to a number of factors.</p>
+<div id="579ec0cd" class="cell" data-execution_count="56">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter the DataFrame to keep only rows where the 'distance' is below 3000</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>filtered_df <span class="op">=</span> df[df[<span class="st">'distance'</span>] <span class="op">&lt;</span> <span class="dv">3000</span>]</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>filtered_df, x<span class="op">=</span><span class="st">"distance"</span>, y<span class="op">=</span><span class="st">"air_time"</span>)</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Flight Distance vs. Flight air_time (Distance &lt; 3000 miles)"</span>)</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Distance"</span>)</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Air Time"</span>)</span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="NYC%20flights_files/figure-html/cell-29-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="e1f9821b" class="cell" data-execution_count="53">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df, x<span class="op">=</span><span class="st">"distance"</span>, y<span class="op">=</span><span class="st">"air_time"</span>)</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the x and y axes to use log scaling</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>plt.xscale(<span class="st">'log'</span>)</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>plt.yscale(<span class="st">'log'</span>)</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Flight Distance vs. Flight air_time (Log Scaling)"</span>)</span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Log Flight Distance (miles)"</span>)</span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Log Flight air_time"</span>)</span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="NYC%20flights_files/figure-html/cell-30-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="ebffa8c7" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co">#coverting hours into minutes andadding with the minutes column</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Total Duration (minutes)'</span>] <span class="op">=</span> df[<span class="st">'hour'</span>] <span class="op">*</span> <span class="dv">60</span> <span class="op">+</span> df[<span class="st">'minute'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="f1ef58e5" class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co">#scatterplot - flight duration vs flight distance</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df, x<span class="op">=</span><span class="st">"distance"</span>, y<span class="op">=</span><span class="st">"Total Duration (minutes)"</span>)</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Flight Distance vs. Flight Duration"</span>)</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Flight Distance (miles)"</span>)</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Flight Duration (minutes)"</span>)</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="NYC%20flights_files/figure-html/cell-32-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The image shows a scatter plot of flight distance vs.&nbsp;flight duration. This means that each dot on the graph represents a single flight, and the x-axis shows the distance of the flight in miles, while the y-axis shows the duration of the flight in minutes. As we can see from the graph, there is a strong correlation between flight distance and flight duration. This means that, in general, flights that are longer in distance will also take longer in duration. However, there are also some factors that can affect flight duration, even for flights that are the same distance. These factors can include:</p>
+<p>The type of aircraft used The weather conditions The routing of the flight Air traffic control For example, a flight that is flying against a strong headwind will take longer than a flight that is flying with a tailwind. Additionally, a flight that has to take a more indirect route to avoid bad weather will also take longer.</p>
+<p>Despite these factors, the overall trend is that longer flights will take longer. This is because airplanes have a limited cruising speed, and they need to spend more time in the air to cover a longer distance.</p>
+<div id="f812bffe" class="cell" data-execution_count="47">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>df, x<span class="op">=</span><span class="st">"distance"</span>, y<span class="op">=</span><span class="st">"Total Duration (minutes)"</span>)</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the x and y axes to use log scaling</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>plt.xscale(<span class="st">'log'</span>)</span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>plt.yscale(<span class="st">'log'</span>)</span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Flight Distance vs. Flight Duration (Log Scaling)"</span>)</span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Log Flight Distance (miles)"</span>)</span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Log Flight Duration (minutes)"</span>)</span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="NYC%20flights_files/figure-html/cell-33-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="a2a4039d" class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="28">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">year</th>
+<th data-quarto-table-cell-role="th">month</th>
+<th data-quarto-table-cell-role="th">day</th>
+<th data-quarto-table-cell-role="th">dep_delay</th>
+<th data-quarto-table-cell-role="th">arr_delay</th>
+<th data-quarto-table-cell-role="th">carrier</th>
+<th data-quarto-table-cell-role="th">flight</th>
+<th data-quarto-table-cell-role="th">tailnum</th>
+<th data-quarto-table-cell-role="th">origin</th>
+<th data-quarto-table-cell-role="th">dest</th>
+<th data-quarto-table-cell-role="th">air_time</th>
+<th data-quarto-table-cell-role="th">distance</th>
+<th data-quarto-table-cell-role="th">hour</th>
+<th data-quarto-table-cell-role="th">minute</th>
+<th data-quarto-table-cell-role="th">speed</th>
+<th data-quarto-table-cell-role="th">Total Duration (minutes)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>2.0</td>
+<td>11.0</td>
+<td>UA</td>
+<td>1545</td>
+<td>N14228</td>
+<td>EWR</td>
+<td>IAH</td>
+<td>227.0</td>
+<td>1400</td>
+<td>5</td>
+<td>15</td>
+<td>370.044053</td>
+<td>315</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>4.0</td>
+<td>20.0</td>
+<td>UA</td>
+<td>1714</td>
+<td>N24211</td>
+<td>LGA</td>
+<td>IAH</td>
+<td>227.0</td>
+<td>1416</td>
+<td>5</td>
+<td>29</td>
+<td>374.273128</td>
+<td>329</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>2.0</td>
+<td>33.0</td>
+<td>AA</td>
+<td>1141</td>
+<td>N619AA</td>
+<td>JFK</td>
+<td>MIA</td>
+<td>160.0</td>
+<td>1089</td>
+<td>5</td>
+<td>40</td>
+<td>408.375000</td>
+<td>340</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>-1.0</td>
+<td>-18.0</td>
+<td>B6</td>
+<td>725</td>
+<td>N804JB</td>
+<td>JFK</td>
+<td>BQN</td>
+<td>183.0</td>
+<td>1576</td>
+<td>5</td>
+<td>45</td>
+<td>516.721311</td>
+<td>345</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>-6.0</td>
+<td>-25.0</td>
+<td>DL</td>
+<td>461</td>
+<td>N668DN</td>
+<td>LGA</td>
+<td>ATL</td>
+<td>116.0</td>
+<td>762</td>
+<td>6</td>
+<td>0</td>
+<td>394.137931</td>
+<td>360</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="e5146944" class="cell" data-execution_count="67">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a copy of the original DataFrame</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>Tdf <span class="op">=</span> df.copy()</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Dropping the desired columns from the new DataFrame</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>columns_to_drop <span class="op">=</span> [<span class="st">'carrier'</span>, <span class="st">'tailnum'</span>,<span class="st">'origin'</span>,<span class="st">'dest'</span>]  </span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>Tdf.drop(columns<span class="op">=</span>columns_to_drop, inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we have 'Tdf' with the specified columns dropped</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="ef31aefe" class="cell" data-execution_count="68">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>Tdf.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="68">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">year</th>
+<th data-quarto-table-cell-role="th">month</th>
+<th data-quarto-table-cell-role="th">day</th>
+<th data-quarto-table-cell-role="th">dep_delay</th>
+<th data-quarto-table-cell-role="th">arr_delay</th>
+<th data-quarto-table-cell-role="th">flight</th>
+<th data-quarto-table-cell-role="th">air_time</th>
+<th data-quarto-table-cell-role="th">distance</th>
+<th data-quarto-table-cell-role="th">hour</th>
+<th data-quarto-table-cell-role="th">minute</th>
+<th data-quarto-table-cell-role="th">speed</th>
+<th data-quarto-table-cell-role="th">Total Duration (minutes)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>2.0</td>
+<td>11.0</td>
+<td>1545</td>
+<td>227.0</td>
+<td>1400</td>
+<td>5</td>
+<td>15</td>
+<td>370.044053</td>
+<td>315</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>4.0</td>
+<td>20.0</td>
+<td>1714</td>
+<td>227.0</td>
+<td>1416</td>
+<td>5</td>
+<td>29</td>
+<td>374.273128</td>
+<td>329</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>2.0</td>
+<td>33.0</td>
+<td>1141</td>
+<td>160.0</td>
+<td>1089</td>
+<td>5</td>
+<td>40</td>
+<td>408.375000</td>
+<td>340</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>-1.0</td>
+<td>-18.0</td>
+<td>725</td>
+<td>183.0</td>
+<td>1576</td>
+<td>5</td>
+<td>45</td>
+<td>516.721311</td>
+<td>345</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>2013</td>
+<td>1</td>
+<td>1</td>
+<td>-6.0</td>
+<td>-25.0</td>
+<td>461</td>
+<td>116.0</td>
+<td>762</td>
+<td>6</td>
+<td>0</td>
+<td>394.137931</td>
+<td>360</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="we-split-our-dataset-into-a-training-set-x_train-y_train-and-a-test-set-x_test-y_test.-now-lets-build-a-simple-linear-regression-model-as-an-example-to-predict-departure-delay-dep_delay-based-on-the-features-in-your-dataset." class="level3">
+<h3 class="anchored" data-anchor-id="we-split-our-dataset-into-a-training-set-x_train-y_train-and-a-test-set-x_test-y_test.-now-lets-build-a-simple-linear-regression-model-as-an-example-to-predict-departure-delay-dep_delay-based-on-the-features-in-your-dataset.">we split our dataset into a training set (X_train, y_train) and a test set (X_test, y_test). Now, let’s build a simple linear regression model as an example to predict departure delay (dep_delay) based on the features in your dataset.</h3>
+<div id="9f775321" class="cell" data-execution_count="44">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Define our features (X) and target variable (y)</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> Tdf.drop(columns<span class="op">=</span>[<span class="st">'dep_delay'</span>])  <span class="co"># Features (exclude the departure delay column)</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> Tdf[<span class="st">'dep_delay'</span>]  <span class="co"># Target variable (departure delay)</span></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Split the data into a training set and a test set (e.g., 80% for training, 20% for testing)</span></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(X, y, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Optionally, you can specify a random_state for reproducibility</span></span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a><span class="co"># The random_state ensures that the split is the same every time you run the code</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>X contains the features (all columns except ‘dep_delay’). y contains the target variable, which is ‘dep_delay’ in this case. train_test_split is used to split the data into training and test sets. You can specify the test_size parameter to control the size of the test set (e.g., 0.2 for a 20% test set). The random_state parameter is optional but ensures that the split is the same each time you run the code, making your results reproducible.</p>
+<p>We import the necessary libraries, including scikit-learn’s LinearRegression for building a linear regression model and metrics for evaluation.</p>
+<p>We create a linear regression model (model) using LinearRegression().</p>
+<p>We train the model using the training data (X_train and y_train) with the fit() method.</p>
+<p>We make predictions on the test data (X_test) using the predict() method.</p>
+<p>We evaluate the model’s performance using mean squared error (MSE) and R-squared (R2) as metrics. These metrics assess how well the model fits the data and predicts departure delays.</p>
+<p>What we are trying to find out with this split and modeling is how well your chosen machine learning model can predict departure delays based on the selected features in your dataset. Mean squared error (MSE) measures the average squared difference between predicted and actual departure delays, and R-squared (R2) indicates the proportion of the variance in the target variable (departure delay) that is predictable from the features.</p>
+<div id="5518c5f2" class="cell" data-execution_count="45">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> mean_squared_error, mean_absolute_error, r2_score</span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Load your dataset if you haven't already</span></span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Replace 'your_dataset.csv' with the actual path to your dataset file</span></span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a><span class="co"># df = pd.read_csv('your_dataset.csv')</span></span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming you have split your dataset into X_train, y_train, X_test, and y_test</span></span>
+<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a linear regression model</span></span>
+<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LinearRegression()</span>
+<span id="cb49-14"><a href="#cb49-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-15"><a href="#cb49-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Train the model on the training data</span></span>
+<span id="cb49-16"><a href="#cb49-16" aria-hidden="true" tabindex="-1"></a>model.fit(X_train, y_train)</span>
+<span id="cb49-17"><a href="#cb49-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-18"><a href="#cb49-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Make predictions on the test data</span></span>
+<span id="cb49-19"><a href="#cb49-19" aria-hidden="true" tabindex="-1"></a>y_pred <span class="op">=</span> model.predict(X_test)</span>
+<span id="cb49-20"><a href="#cb49-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-21"><a href="#cb49-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluate the model</span></span>
+<span id="cb49-22"><a href="#cb49-22" aria-hidden="true" tabindex="-1"></a>mse <span class="op">=</span> mean_squared_error(y_test, y_pred)</span>
+<span id="cb49-23"><a href="#cb49-23" aria-hidden="true" tabindex="-1"></a>rmse <span class="op">=</span> np.sqrt(mse)</span>
+<span id="cb49-24"><a href="#cb49-24" aria-hidden="true" tabindex="-1"></a>mae <span class="op">=</span> mean_absolute_error(y_test, y_pred)</span>
+<span id="cb49-25"><a href="#cb49-25" aria-hidden="true" tabindex="-1"></a>r2 <span class="op">=</span> r2_score(y_test, y_pred)</span>
+<span id="cb49-26"><a href="#cb49-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-27"><a href="#cb49-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Mean Squared Error (MSE): </span><span class="sc">{</span>mse<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb49-28"><a href="#cb49-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Root Mean Squared Error (RMSE): </span><span class="sc">{</span>rmse<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb49-29"><a href="#cb49-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Mean Absolute Error (MAE): </span><span class="sc">{</span>mae<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb49-30"><a href="#cb49-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"R-squared (R2) Score: </span><span class="sc">{</span>r2<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb49-31"><a href="#cb49-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-32"><a href="#cb49-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Optionally, you can also print the coefficients and intercept of the linear regression model</span></span>
+<span id="cb49-33"><a href="#cb49-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Coefficients:"</span>, model.coef_)</span>
+<span id="cb49-34"><a href="#cb49-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Intercept:"</span>, model.intercept_)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean Squared Error (MSE): 202.91
+Root Mean Squared Error (RMSE): 14.24
+Mean Absolute Error (MAE): 10.13
+R-squared (R2) Score: 0.87
+Coefficients: [ 0.00000000e+00 -2.11657739e-01 -3.84476911e-03  8.50706709e-01
+  2.82105472e-04 -5.45085626e-01  6.99393773e-02  3.72518688e-05
+  2.20196422e-03  2.05032133e-02  4.43707635e-03]
+Intercept: 4.645197418854826</code></pre>
+</div>
+</div>
+<ol type="1">
+<li><p><strong>Mean Squared Error (MSE)</strong>: The MSE is a measure of the average squared difference between the actual (observed) values and the predicted values made by our regression model. In this case, our model has an MSE of approximately 202.91. Lower MSE values indicate better model performance, meaning that, on average, our model’s predictions are relatively close to the actual values.</p></li>
+<li><p><strong>Root Mean Squared Error (RMSE)</strong>: The RMSE is the square root of the MSE and is expressed in the same units as the target variable (in this case, likely minutes for departure delay). The RMSE value of approximately 14.24 indicates that, on average, our model’s predictions have an error of approximately 14.24 minutes from the actual departure delay times.</p></li>
+<li><p><strong>Mean Absolute Error (MAE)</strong>: The MAE is another measure of the average absolute difference between the actual and predicted values. An MAE of approximately 10.13 means that, on average, our model’s predictions are off by about 10.13 minutes from the actual departure delays.</p></li>
+<li><p><strong>R-squared (R2) Score</strong>: The R-squared score measures the proportion of the variance in the target variable (departure delay) that is explained by our model. An R2 score of 0.87 indicates that our model explains approximately 87% of the variance in departure delay. In other words, it suggests that our model is a good fit for the data, as it captures a substantial portion of the variability in departure delays.</p></li>
+<li><p><strong>Coefficients</strong>: The coefficients represent the estimated relationships between the independent variables (features) and the target variable (departure delay). Each coefficient corresponds to a specific feature. For example, the coefficient of -2.11657739e-01 for one of the features suggests that a one-unit increase in that feature is associated with a decrease of approximately 0.21 minutes in departure delay, assuming all other variables are held constant.</p></li>
+<li><p><strong>Intercept</strong>: The intercept (4.645197418854826) represents the estimated departure delay when all the independent variables are zero. In most cases, this value might not have a straightforward interpretation, as it depends on the context and scaling of our features.</p></li>
+</ol>
+<p>Overall, the metrics (MSE, RMSE, MAE, and R2) indicate that our linear regression model is performing reasonably well. It explains a substantial portion of the variance in departure delay, and the errors in its predictions are relatively small on average. The coefficients provide insights into the relationships between features and departure delay, indicating which factors have a positive or negative impact on delays.</p>
+<div id="77d42310" class="cell" data-execution_count="49">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a scatter plot for actual vs. predicted values</span></span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>))</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>plt.scatter(y_test, y_pred, c<span class="op">=</span><span class="st">'green'</span>, label<span class="op">=</span><span class="st">'Actual'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)  <span class="co"># Blue for actual values</span></span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>plt.plot([<span class="bu">min</span>(y_test), <span class="bu">max</span>(y_test)], [<span class="bu">min</span>(y_test), <span class="bu">max</span>(y_test)], <span class="st">'k--'</span>, lw<span class="op">=</span><span class="dv">2</span>)  <span class="co"># Diagonal line for reference</span></span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Actual Departure Delay'</span>)</span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Predicted Departure Delay'</span>)</span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Actual vs. Predicted Departure Delay'</span>)</span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="NYC%20flights_files/figure-html/cell-39-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The graph shows that there is a generally positive correlation between the actual and predicted departure delays. This means that flights with longer actual departure delays also tend to have longer predicted departure delays. However, there is also a lot of scatter in the data, meaning that there are many flights with actual departure delays that are significantly different from their predicted departure delays.</p>
+<p>One possible explanation for this scatter is that the model used to predict departure delays is not perfect. It is likely that the model does not take into account all of the factors that can affect departure delays, such as weather, air traffic control, and mechanical problems.</p>
+<p>Another possible explanation for the scatter is that there are some flights that experience unexpected delays or cancellations. For example, a flight may be delayed due to a medical emergency on board, or it may be cancelled due to severe weather.</p>
+<p>Overall, the graph shows that the model used to predict departure delays is generally accurate, but it is important to keep in mind that there will always be some flights with actual departure delays that are significantly different from their predicted departure delays.</p>
+<p>Here are some additional observations about the graph:</p>
+<p>The majority of the points on the graph fall below the diagonal line. This means that the predicted departure delays are generally lower than the actual departure delays. There are a few points on the graph that fall far above the diagonal line. These points represent flights with actual departure delays that were much longer than predicted. There is a slight trend of the points clustering towards the top right corner of the graph. This suggests that the model may be slightly overestimating the departure delays for flights with longer actual departure delays.</p>
+<p>Above the diagonal line: A flight that is cancelled due to severe weather. A flight that is delayed due to a medical emergency on board. A flight that is delayed due to mechanical problems that were not detected before takeoff. Below the diagonal line: A flight that is able to take off early due to favorable weather conditions. A flight that is able to make up time in the air due to a strong tailwind. A flight that is able to land early due to light air traffic.</p>
+<div id="28b39c30" class="cell" data-execution_count="61">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Define your features (X) and target variable (y)</span></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> Tdf.drop(columns<span class="op">=</span>[<span class="st">'arr_delay'</span>])  <span class="co"># Features (exclude the arrival delay column)</span></span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> Tdf[<span class="st">'arr_delay'</span>]  <span class="co"># Target variable (arrival delay)</span></span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Split the data into a training set and a test set (e.g., 80% for training, 20% for testing)</span></span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(X, y, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Optionally, you can specify a random_state for reproducibility</span></span>
+<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a><span class="co"># The random_state ensures that the split is the same every time you run the code</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="a0a5db02" class="cell" data-execution_count="62">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> mean_squared_error, mean_absolute_error, r2_score</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Load your dataset if you haven't already</span></span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Replace 'your_dataset.csv' with the actual path to your dataset file</span></span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a><span class="co"># df = pd.read_csv('your_dataset.csv')</span></span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming you have split your dataset into X_train, y_train, X_test, and y_test</span></span>
+<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-12"><a href="#cb53-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a linear regression model</span></span>
+<span id="cb53-13"><a href="#cb53-13" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LinearRegression()</span>
+<span id="cb53-14"><a href="#cb53-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-15"><a href="#cb53-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Train the model on the training data</span></span>
+<span id="cb53-16"><a href="#cb53-16" aria-hidden="true" tabindex="-1"></a>model.fit(X_train, y_train)</span>
+<span id="cb53-17"><a href="#cb53-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-18"><a href="#cb53-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Make predictions on the test data</span></span>
+<span id="cb53-19"><a href="#cb53-19" aria-hidden="true" tabindex="-1"></a>y_pred <span class="op">=</span> model.predict(X_test)</span>
+<span id="cb53-20"><a href="#cb53-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-21"><a href="#cb53-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluate the model</span></span>
+<span id="cb53-22"><a href="#cb53-22" aria-hidden="true" tabindex="-1"></a>mse <span class="op">=</span> mean_squared_error(y_test, y_pred)</span>
+<span id="cb53-23"><a href="#cb53-23" aria-hidden="true" tabindex="-1"></a>rmse <span class="op">=</span> np.sqrt(mse)</span>
+<span id="cb53-24"><a href="#cb53-24" aria-hidden="true" tabindex="-1"></a>mae <span class="op">=</span> mean_absolute_error(y_test, y_pred)</span>
+<span id="cb53-25"><a href="#cb53-25" aria-hidden="true" tabindex="-1"></a>r2 <span class="op">=</span> r2_score(y_test, y_pred)</span>
+<span id="cb53-26"><a href="#cb53-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-27"><a href="#cb53-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Mean Squared Error (MSE): </span><span class="sc">{</span>mse<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb53-28"><a href="#cb53-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Root Mean Squared Error (RMSE): </span><span class="sc">{</span>rmse<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb53-29"><a href="#cb53-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Mean Absolute Error (MAE): </span><span class="sc">{</span>mae<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb53-30"><a href="#cb53-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"R-squared (R2) Score: </span><span class="sc">{</span>r2<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb53-31"><a href="#cb53-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-32"><a href="#cb53-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Optionally, you can also print the coefficients and intercept of the linear regression model</span></span>
+<span id="cb53-33"><a href="#cb53-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Coefficients:"</span>, model.coef_)</span>
+<span id="cb53-34"><a href="#cb53-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Intercept:"</span>, model.intercept_)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean Squared Error (MSE): 244.92
+Root Mean Squared Error (RMSE): 15.65
+Mean Absolute Error (MAE): 11.21
+R-squared (R2) Score: 0.88
+Coefficients: [ 0.00000000e+00  2.11337208e-01  5.30746265e-03  1.02136703e+00
+ -1.30702900e-04  6.45198733e-01 -8.29117146e-02 -1.97918903e-06
+ -7.43682563e-04 -2.07144655e-02 -8.62433905e-04]
+Intercept: -8.55436259873209</code></pre>
+</div>
+</div>
+<ol type="1">
+<li><strong>Mean Squared Error (MSE): 244.92</strong>
+<ul>
+<li>MSE is a measure of how well our regression model’s predictions match the actual values.</li>
+<li>In this case, an MSE of 244.92 means that, on average, our model’s predictions have a squared error (difference) of 244.92 from the actual values.</li>
+<li>Lower MSE values indicate better model performance, but the scale of MSE depends on the units of our target variable.</li>
+</ul></li>
+<li><strong>Root Mean Squared Error (RMSE): 15.65</strong>
+<ul>
+<li>RMSE is the square root of the MSE and is in the same units as our target variable.</li>
+<li>An RMSE of 15.65 means that, on average, our model’s predictions have an error of approximately 15.65 minutes when predicting departure delay.</li>
+<li>Just like with MSE, lower RMSE values indicate better model performance.</li>
+</ul></li>
+<li><strong>Mean Absolute Error (MAE): 11.21</strong>
+<ul>
+<li>MAE is another measure of prediction error, but it doesn’t square the errors, so it’s less sensitive to outliers.</li>
+<li>An MAE of 11.21 means that, on average, our model’s predictions have an absolute error (absolute difference) of approximately 11.21 minutes from the actual values.</li>
+<li>Like MSE and RMSE, lower MAE values indicate better model performance.</li>
+</ul></li>
+<li><strong>R-squared (R2) Score: 0.88</strong>
+<ul>
+<li>R2 score measures how well our model explains the variance in the target variable.</li>
+<li>An R2 score of 0.88 means that our model explains about 88% of the variability in departure delay based on the features used.</li>
+<li>R2 scores range from 0 to 1, where 0 indicates that the model doesn’t explain any variance, and 1 indicates a perfect fit. An R2 score closer to 1 is desirable.</li>
+</ul></li>
+<li><strong>Coefficients:</strong> These are the coefficients associated with each feature in our linear regression model.
+<ul>
+<li>Each coefficient represents the change in the target variable (departure delay) for a one-unit change in the corresponding feature, holding all other features constant.</li>
+<li>For example, if you have a coefficient of 0.2113 for a feature, it means that a one-unit increase in that feature is associated with an increase of 0.2113 minutes in departure delay, assuming all other factors remain the same.</li>
+</ul></li>
+<li><strong>Intercept: -8.55436259873209</strong>
+<ul>
+<li>The intercept is the value of the target variable (departure delay) when all the predictor variables are zero.</li>
+<li>In this case, it represents the departure delay when all other factors are zero. However, in practical terms, it may not have a meaningful interpretation, depending on our dataset.</li>
+</ul></li>
+</ol>
+<p>Overall, the MSE, RMSE, MAE, and R2 score provide insights into how well our linear regression model is performing, while the coefficients and intercept help understand the relationships between the features and the target variable. In this case, our model seems to have relatively good performance (low MSE, RMSE, and MAE) and explains a significant portion of the variance (high R2 score) in departure delay based on the given features.</p>
+<div id="868c6d57" class="cell" data-execution_count="66">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a scatter plot for actual vs. predicted values</span></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>))</span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>plt.scatter(y_test, y_pred, c<span class="op">=</span><span class="st">'red'</span>, label<span class="op">=</span><span class="st">'Actual'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)  <span class="co"># Blue for actual values</span></span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>plt.plot([<span class="bu">min</span>(y_test), <span class="bu">max</span>(y_test)], [<span class="bu">min</span>(y_test), <span class="bu">max</span>(y_test)], <span class="st">'k--'</span>, lw<span class="op">=</span><span class="dv">2</span>)  <span class="co"># Diagonal line for reference</span></span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Actual arrival Delay'</span>)</span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Predicted arrival Delay'</span>)</span>
+<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Actual vs. Predicted Arrival Delay'</span>)</span>
+<span id="cb55-10"><a href="#cb55-10" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb55-11"><a href="#cb55-11" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb55-12"><a href="#cb55-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="NYC%20flights_files/figure-html/cell-42-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The scatter plot of actual vs predicted arrival delay shows that the predicted arrival delays are generally lower than the actual arrival delays. This means that the model is underpredicting the arrival delays, which could be due to a number of factors, such as:</p>
+<p>The model is not complex enough to capture all of the factors that contribute to arrival delays. The model is trained on historical data, which may not be representative of current conditions. The model is trained on incomplete data. Despite the underprediction, the model still appears to be able to capture the general trend of the arrival delays. This is evidenced by the fact that the points are clustered around the diagonal line, which represents perfect prediction.</p>
+<p>There are a few data points that are significantly below the diagonal line. These data points represent flights that were delayed much more than the model predicted. It is important to investigate these data points to understand why the model underpredicted the arrival delays. There is a slight trend for the predicted arrival delays to increase as the actual arrival delays increase. This suggests that the model is better at predicting larger arrival delays than smaller arrival delays.</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
