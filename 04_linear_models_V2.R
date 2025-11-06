@@ -3,6 +3,12 @@
 ####
 #### Session 4: Linear Models & Principal Component Analysis
 ####
+<<<<<<< HEAD
+=======
+#### Recommended Reading (Coding): 
+#### R for Data Science
+#### URL: https://r4ds.had.co.nz/
+>>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
 ####
 #### Tidymodels
 #### https://www.tmwr.org/
@@ -55,7 +61,10 @@ summary(is.na(Hitters)) # 59 Salary observations are missing
 # Assumptions: Salary ...
 ## ... depends on Performance
 ## ... depends on career track
+<<<<<<< HEAD
 ## ... information is missing AT RANDOM
+=======
+>>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
 
 
 
@@ -145,7 +154,11 @@ hist(log(train_data$CRuns))
 
 # 3.1 Model development
 
+<<<<<<< HEAD
 # Equation: y = ß0 + ß1*x1 + ß2*x2 + ... + e
+=======
+# Equation: y = ß0 + ß1*x1 + ß2*x2
+>>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
 
 # So we can start developing a model to test the hypotheses.
 
@@ -174,7 +187,11 @@ LM2 <- lm(Salary ~ CHmRun + CRuns, data = train_data)
 summary(LM2)
 AIC(LM2)
 
+<<<<<<< HEAD
 # explained variance has increased to 29.84% (expect some minor variation)
+=======
+# explained variance has increased to 29.84%
+>>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
 
 # Now we add the duration of the career: 
 LM3 <- lm(Salary ~ CHmRun + CRuns + Years, data = train_data)
@@ -305,7 +322,10 @@ plot(LM3_logln)
 
 
 # b. Log-Log model: log(y) ~ log(x)
+<<<<<<< HEAD
 log(1)
+=======
+>>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
 LM3_loglog <- lm(log(Salary) ~ log(CHmRun + 1) + log(CRuns + 1) + log(Years + 1), data = train_data)
 summary(LM3_loglog)
 plot(LM3_loglog)
@@ -334,7 +354,11 @@ plot(LM3_loglog)
 
 
 # The AIC criterion can help us compare models with the same data set and y (like adj.R2)?
+<<<<<<< HEAD
 ?AIC()
+=======
+AIC()
+>>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
 
 # This approach can be automated in several ways.
 
@@ -349,7 +373,11 @@ LMfull_ln = lm(log(Salary) ~ ., data = train_data)
 # here I log y in the function, but remove the logged variables from the dataset
 summary(LMfull_ln)
 AIC(LMfull_ln)
+<<<<<<< HEAD
 #BIC(LMfull_ln)
+=======
+BIC(LMfull_ln)
+>>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
 
 ?step() # Note: Tidymodels will block this function in the namespace
 LMfull_back <- stats::step(LMfull_ln,
@@ -410,7 +438,11 @@ LM0_both <- MASS::stepAIC(LM0_ln, # forward regression in the defined scope
 )
 summary(LM0_both)
 # Here it was the same result.
+<<<<<<< HEAD
 AIC(LM0_both)
+=======
+
+>>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
 
 plot(LM0_both)
 # There are some serious issues here

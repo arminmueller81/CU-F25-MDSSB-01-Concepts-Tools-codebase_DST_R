@@ -26,17 +26,8 @@ library(lubridate)
 library(nycflights13)
 library(tidymodels)
 
-<<<<<<< HEAD
-# avoid scientific notation (e-05)
-options(scipen = 8)
 
 
-flights <- flights
-
-=======
-
-
->>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
 # 1. Factors (brief introduction)
 
 # - categorical variable (binary or multivariate)
@@ -51,10 +42,6 @@ flights <- flights
 
 
 # 1.1 disadvantages of a string
-<<<<<<< HEAD
-
-=======
->>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
 # (1) not ordered
 x1 <- c("Dec", "Apr", "Jan", "Mar")
 ?sort()
@@ -146,6 +133,7 @@ levels(f2)
 # Last week we used Ordinary Least Squares (OLS) Regression to predict a numerical outcome.
 # Logistic Regression is a common approach to analyzing and predicting binary categorical outcomes.
 # In Machine Learning, predicting categorical outcomes is called classification.
+# In Analytical terms applies to logical and statistical classification
 
 
 # 2.1 Prepare a dependent variable
@@ -154,37 +142,21 @@ library(lubridate)
 
 # Let's assume 6 minutes is a threshold for meaningful arrival delays (like DB), 
 # where passengers shift from tolerance to being annoyed.
-<<<<<<< HEAD
-# We take the flights data set and try to predict if planes arrive more than 6 minutes late.
-
-
-flight_data <- flights %>% 
-  # dependent variable preparation
-=======
 # We take the flights data set and try to predict if planes arrive more than 30 minutes late.
 
 
 flight_data <- flights %>% 
->>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
   mutate(
     arr_delay_dummy = ifelse(arr_delay >= 6, "late", "on_time"), # Convert the arrival delay to a dummy
     arr_delay_ord = ordered(arr_delay_dummy, levels = c("on_time", "late")), # ordered factor for logistic regression in base-R
     arr_delay = factor(arr_delay_dummy), # regular factor for Tidymodels logistic regression
     date = lubridate::as_date(time_hour) # We will use the date (not date-time) for pre-processing
   ) %>% 
-<<<<<<< HEAD
-  # Only retain the specific columns we will use
-  select(dep_time, origin, dest, air_time, distance, 
-         carrier, date, arr_delay, arr_delay_ord, time_hour) %>% 
-  # Include the weather data
-  inner_join(weather, by = c("origin", "time_hour")) %>% 
-=======
   # Include the weather data
   #inner_join(weather, by = c("origin", "time_hour")) %>% 
   # Only retain the specific columns we will use
   select(dep_time, origin, dest, air_time, distance, 
          carrier, date, arr_delay, arr_delay_ord, time_hour) %>% 
->>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
   na.omit() %>% # Exclude missing data
   # For calculations it is better to have character variables converted to factors.
   # Be careful with qualitative variables that have many different values, like destination. They slow down calculations.
@@ -214,11 +186,7 @@ skim(flight_data) # more detailed summary
 
 ## split the data
 set.seed(0421) # This enables the analysis to be reproducible when random numbers are used 
-<<<<<<< HEAD
-# Put 60% of the data into the training set 
-=======
 # Put 75% of the data into the training set 
->>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
 data_split <- initial_split(flight_data, prop = 0.60)
 
 # Create data frames for the two sets:
@@ -237,6 +205,7 @@ LogReg1 <- glm(arr_delay_ord ~ origin + air_time, # formula
                family = "binomial") # probability distribution for logistic regression
 summary(LogReg1)
 # origin is automatically dis-aggregated into dummy variables
+# NB. You can only see 2 airports as the third is used as a reference variable
 table(train_data$origin)
 # one airport is selected as the reference category (Intercept);
 
@@ -272,32 +241,19 @@ BIC(LogReg1)
 
 ## Dummy Variable
 LogReg1$coefficients[2]
-<<<<<<< HEAD
 # Departing from JFK decreases the log-odds of a 6 minutes delay by 0.066 points compared to Newark.
-
-
-## metric variable
-LogReg1$coefficients[4]
-# With every minute of air-time the log-odds of a 6 minutes delay decreases by 0.00007437.
-=======
-# Departing from JFK decreases the log-odds of a 6 minutes delay by 0.15876 points compared to Newark.
 
 ## metric variable
 LogReg1$coefficients[4]
 # With every minute of air-time the log-odds of a 6 minutes delay decreases by 0.00021866.
->>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
 
 # Convert to odds ratio (multiplicative interpretation)
 exp(LogReg1$coefficients[2])
-# Departing from JFK decreases the odds of a 6 minutes delay by the factor 0.85 compared to Newark.
+# Departing from JFK decreases the odds of a 6 minutes delay by the factor(multiplication) 0.85 compared to Newark.
 ## Odds of 1 = 50/50
 ## Odds of 2 = 2/1
 ## Odds of 0.5 = 1/2
 
-<<<<<<< HEAD
-
-=======
->>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
 # To convert log-odds to probability, follow these 3 steps:
 # a. get the case you want to calculate 
 LogReg1$coefficients
@@ -313,11 +269,7 @@ CASE_odds <- exp(CASE_log_odds)
 CASE_odds
 # The odds of a plane departing from JFK with 100 minutes airtime being delayed by 6 minutes
 
-<<<<<<< HEAD
-# c. get the probability
-=======
 # c. get the probability 
->>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
 # If odds = 2, then probability is 
 2/(1+2)
 # If odds = 0.5, then probability is 
@@ -326,11 +278,7 @@ CASE_odds
 CASE_prob <- CASE_odds/(1+CASE_odds)
 CASE_prob
 # The predicted probability of a plane departing from JFK with 100 minutes airtime 
-<<<<<<< HEAD
-# being delayed by 6 minutes or more is 34.83%.
-=======
 # being delayed by 6 minutes or more is 31.73%.
->>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
 
 
 
@@ -375,16 +323,6 @@ linear_reg() |>
 ## Option 2: pre-processing in Tidymodels (recommended if possible)
 
 
-<<<<<<< HEAD
-## remove destination airport due to too many categories
-#train_data <-  train_data |> 
-#  select(-dest)
-#test_data <-  test_data |> 
-#  select(-dest)
-
-
-=======
->>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
 # 4.2.1 Define a model including all predictors (default) with recipe()
 
 flights_model <- recipe(arr_delay ~ ., data = train_data, family = "binomial") 
@@ -514,11 +452,7 @@ flights_model_do_not_use <-
 ## or you can just remove variables with too many groups (carrier & destination)
 flights_model <- 
   recipe(arr_delay ~ ., data = train_data, family = "binomial") %>% 
-<<<<<<< HEAD
-  step_rm(carrier, dest, month, day, arr_delay_ord)  %>% # remove factors with too many categories & alternative y
-=======
   step_rm(carrier, dest, arr_delay_ord)  %>% # remove factors with too many categories & alternative y
->>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
   update_role(time_hour, new_role = "ID") %>% 
   step_date(date, features = c("dow", "month")) %>%               
   step_holiday(date, 
@@ -699,24 +633,15 @@ confusion_matrix
 # Here: Positive = delay
 confusion_matrix
 (confusion_matrix[1,1])/(confusion_matrix[1,1] + confusion_matrix[1,2])
-<<<<<<< HEAD
-# 51.82% of the delayed flights were correctly predicted to to be late.
-# This is not so good, but a reasonable basis ...
-=======
 # 36.34% of the delayed flights were correctly predicted to to be late.
 # This is not so good.
->>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
 
 
 # Specificity (true negative rate)
 # ... refers to the probability of a negative test, conditioned on truly being negative.
 confusion_matrix
 (confusion_matrix[2,2])/(confusion_matrix[2,2] + confusion_matrix[2,1])
-<<<<<<< HEAD
-# 93.76% of flights that were not delayed were correctly predicted not to be late.
-=======
 # 89.87% of flights that were not delayed were correctly predicted not to be late.
->>>>>>> a7b5b76a28d7b71e238d0453ef98e59cd0e39209
 
 
 
